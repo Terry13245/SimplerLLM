@@ -46,7 +46,7 @@ def generate_basic_pydantic_json_model(
                 )
             contents[3] = optimized_prompt
             ai_response = multimodal_model.generate_content(contents, stream=False)
-            print(ai_response.text)
+            #print(ai_response.text)
             if ai_response.text:
                 json_object = extract_json_from_text(ai_response.text)
                 print(json_object)
