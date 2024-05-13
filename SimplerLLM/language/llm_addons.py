@@ -2,7 +2,7 @@ import time
 from typing import Type
 from pydantic import BaseModel
 
-from SimplerLLM.tools.json_helpers import (
+from SimplerLLM.SimplerLLM.tools.json_helpers import (
     extract_json_from_text,
     convert_json_to_pydantic_model,
     validate_json_with_pydantic_model,
