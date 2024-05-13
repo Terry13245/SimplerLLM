@@ -43,33 +43,7 @@ def generate_basic_pydantic_json_model(
                     + f"\n\nThe response should be in a structured JSON format that matches the following JSON: {json_model}"
                 )
         
-            ai_response = llm_instance.generate_response(prompt=optimized_prompt)
+            return ai_response = optimized_prompt
 
-            if ai_response:
-                json_object = extract_json_from_text(ai_response)
 
-                validated, errors = validate_json_with_pydantic_model(
-                    model_class, json_object
-                )
 
-                if not errors:
-                    model_object = convert_json_to_pydantic_model(
-                        model_class, json_object[0]
-                    )
-                    return model_object
-
-        except Exception as e:  # Replace with specific exception if possible
-            return f"Exception occurred: {e}"
-
-        if not ai_response and attempt < max_retries:
-            time.sleep(initial_delay * (2**attempt))  # Exponential backoff
-            continue
-        elif errors:
-            return f"Validation failed after {max_retries} retries: {errors}"
-
-        # Retry logic for validation errors
-        if errors and attempt < max_retries:
-            time.sleep(initial_delay * (2**attempt))  # Exponential backoff
-            continue
-        elif errors:
-            return f"Validation failed after {max_retries} retries: {errors}"
