@@ -13,7 +13,7 @@ from SimplerLLM.tools.json_helpers import (
 
 def generate_basic_pydantic_json_model(
     model_class: Type[BaseModel],
-    prompt: str,
+    contents,
     max_retries: int = 3,
     initial_delay: float = 1.0,
     custom_prompt_suffix: str = None,
@@ -30,6 +30,7 @@ def generate_basic_pydantic_json_model(
 
     :return: Tuple containing either (model instance, None) or (None, error message).
     """
+    
     for attempt in range(max_retries + 1):
         try:
             json_model = generate_json_example_from_pydantic(model_class)
@@ -38,11 +39,37 @@ def generate_basic_pydantic_json_model(
                 optimized_prompt = custom_prompt_suffix
             else:
                 optimized_prompt = (
-                    prompt
+                    contents[3]
                     + f"\n\nThe response should be in a structured JSON format that matches the following JSON: {json_model}"
                 )
-        
-            return ai_response = optimized_prompt
+            contents[3] = optimized_prompt
+            ai_response = multimodal_model.generate_content(contents, stream=True)
 
+            if ai_response:
+                json_object = extract_json_from_text(ai_response)
 
+                validated, errors = validate_json_with_pydantic_model(
+                    model_class, json_object
+                )
 
+                if not errors:
+                    model_object = convert_json_to_pydantic_model(
+                        model_class, json_object[0]
+                    )
+                    return model_object
+
+        except Exception as e:  # Replace with specific exception if possible
+            return f"Exception occurred: {e}"
+
+        if not ai_response and attempt < max_retries:
+            time.sleep(initial_delay * (2**attempt))  # Exponential backoff
+            continue
+        elif errors:
+            return f"Validation failed after {max_retries} retries: {errors}"
+
+        # Retry logic for validation errors
+        if errors and attempt < max_retries:
+            time.sleep(initial_delay * (2**attempt))  # Exponential backoff
+            continue
+        elif errors:
+            return f"Validation failed after {max_retries} retries: {errors}"
