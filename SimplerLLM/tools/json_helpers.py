@@ -134,10 +134,10 @@ def validate_json_with_pydantic_model(model_class, json_data):
 def convert_json_to_pydantic_model(model_class, json_data):
     try:
         model_instance = model_class(**json_data)
-        return model_instance
+        return model_instance.suggestion, model_instance.inpaint_prompt
     except ValidationError as e:
         print("Validation error:", e)
-        return None
+        return None, None
 
 
 # Define a function to provide example values based on type
