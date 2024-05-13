@@ -40,14 +40,16 @@ def generate_basic_pydantic_json_model(
             else:
                 optimized_prompt = (
                     contents[3]
-                    + f"\n\nThe response should be in a structured JSON format that matches the following JSON: {json_model}"
+                    + f"\nThe response must be in a structured JSON format that same as the following JSON: {json_model}."
+                    + "Only return the JSON object. Do not enclose the result in triple backticks."
+                    + "Do not include any backslashes in your output."
                 )
             contents[3] = optimized_prompt
-            ai_response = multimodal_model.generate_content(contents, stream=True)
-
-            if ai_response:
-                json_object = extract_json_from_text(ai_response)
-
+            ai_response = multimodal_model.generate_content(contents, stream=False)
+            print(ai_response.text)
+            if ai_response.text:
+                json_object = extract_json_from_text(ai_response.text)
+                print(json_object)
                 validated, errors = validate_json_with_pydantic_model(
                     model_class, json_object
                 )
