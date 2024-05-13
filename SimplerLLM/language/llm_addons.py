@@ -14,7 +14,6 @@ from SimplerLLM.tools.json_helpers import (
 def generate_basic_pydantic_json_model(
     model_class: Type[BaseModel],
     prompt: str,
-    llm_instance: LLM,
     max_retries: int = 3,
     initial_delay: float = 1.0,
     custom_prompt_suffix: str = None,
