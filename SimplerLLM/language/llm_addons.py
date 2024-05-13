@@ -1,7 +1,6 @@
 import time
 from typing import Type
 from pydantic import BaseModel
-from SimplerLLM.language.llm import LLM
 
 from SimplerLLM.tools.json_helpers import (
     extract_json_from_text,
@@ -14,6 +13,7 @@ from SimplerLLM.tools.json_helpers import (
 def generate_basic_pydantic_json_model(
     model_class: Type[BaseModel],
     contents,
+    multimodal_model,
     max_retries: int = 3,
     initial_delay: float = 1.0,
     custom_prompt_suffix: str = None,
